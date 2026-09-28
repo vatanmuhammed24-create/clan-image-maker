@@ -21,14 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const sigCanvas = document.getElementById('sigCanvas');
   const sigCtx = sigCanvas.getContext('2d');
 
-  // Promotion Form State
+  // Promotion Form State - Starts empty for the promoter to fill in
   const state = {
-    promotedName: 'Alexandre de Beaumont',
-    promotedRank: 'Capitaine des Grenadiers',
-    reason: 'unflinching bravery, exemplary tactical leadership, and steadfast devotion to the Regiment during the decisive breakthrough at the frontline',
-    citationDate: 'Given this 28th day of September, 1805',
-    promoterRank: 'Grand Maréchal',
-    promoterName: 'Varangian',
+    promotedName: '',
+    promotedRank: '',
+    reason: '',
+    citationDate: '',
+    promoterRank: '',
+    promoterName: '',
     crest: 'eagle',
     sealColor: 'red',
     hasSignature: false
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sigCtx.lineCap = 'round';
     sigCtx.lineJoin = 'round';
     sigCtx.strokeStyle = '#1a1005'; // Dark sepia ink
-    drawSampleSignature();
+    // Starts blank - promoter draws their own signature
   }
 
   function getSigCoords(e) {
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // D. Main Decree Text
     drawDecreeBody(w, h);
 
-    // E. 3D Wax Seal & Signature Block
+    // E. 3D Wax Seal (with VA monogram) & Signature Block
     drawWaxSealAndSignature(w, h);
   }
 
@@ -418,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (type === 'eagle') {
       // Napoleonic Imperial Eagle Vector
-      // Crown
       ctx.beginPath();
       ctx.moveTo(-18, -32);
       ctx.lineTo(-22, -45);
@@ -431,7 +430,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fill();
       ctx.stroke();
 
-      // Eagle Body & Wings
       ctx.beginPath();
       // Left Wing
       ctx.moveTo(0, -20);
@@ -459,17 +457,14 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.lineTo(45, 36);
       ctx.stroke();
     } else if (type === 'laurel') {
-      // Imperial Laurel Wreath & Crown
       ctx.beginPath();
       ctx.arc(0, 0, 34, 0, Math.PI * 2);
       ctx.stroke();
       ctx.beginPath();
       ctx.arc(0, 0, 24, 0, Math.PI * 2);
       ctx.stroke();
-      // Star in center
       drawStar(0, 0, 5, 12, 6);
     } else {
-      // Crossed Hussar Sabres
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(-45, -28);
@@ -515,7 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.lineTo(cx + width / 2, cy);
     ctx.stroke();
 
-    // Center Diamond
     ctx.beginPath();
     ctx.moveTo(cx, cy - 6);
     ctx.lineTo(cx + 6, cy);
@@ -531,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cx = w / 2;
     let y = 305;
 
-    // Intro proclamation
+    // Proclamation line
     ctx.textAlign = 'center';
     ctx.fillStyle = '#4a3620';
     ctx.font = 'italic 500 21px "Cormorant Garamond", Georgia, serif';
@@ -540,11 +534,18 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillText('Il est solennellement reconnu et décrété que :', cx, y);
     y += 62;
 
-    // PROMOTED NAME (Calligraphic & Imperial)
-    ctx.fillStyle = '#1c1005';
-    ctx.font = '700 52px "Cinzel", "Great Vibes", serif';
-    ctx.letterSpacing = '3px';
-    ctx.fillText(state.promotedName || '[Nom du Promu]', cx, y);
+    // PROMOTED NAME
+    if (state.promotedName && state.promotedName.trim()) {
+      ctx.fillStyle = '#1c1005';
+      ctx.font = '700 52px "Cinzel", "Great Vibes", serif';
+      ctx.letterSpacing = '3px';
+      ctx.fillText(state.promotedName.trim(), cx, y);
+    } else {
+      ctx.fillStyle = '#9b8260';
+      ctx.font = 'italic 500 38px "Cormorant Garamond", Georgia, serif';
+      ctx.letterSpacing = '2px';
+      ctx.fillText('[ Nom du Promu / Promoted Name ]', cx, y);
+    }
 
     // Underline flourish for Promoted Name
     drawVintageFlourishDivider(cx, y + 16, 380);
@@ -557,10 +558,17 @@ document.addEventListener('DOMContentLoaded', () => {
     y += 54;
 
     // PROMOTED RANK
-    ctx.fillStyle = '#801818'; // Imperial Burgundy Accent
-    ctx.font = '900 36px "Cinzel", serif';
-    ctx.letterSpacing = '4px';
-    ctx.fillText((state.promotedRank || '[GRADE]').toUpperCase(), cx, y);
+    if (state.promotedRank && state.promotedRank.trim()) {
+      ctx.fillStyle = '#801818'; // Imperial Burgundy Accent
+      ctx.font = '900 36px "Cinzel", serif';
+      ctx.letterSpacing = '4px';
+      ctx.fillText(state.promotedRank.trim().toUpperCase(), cx, y);
+    } else {
+      ctx.fillStyle = '#9b8260';
+      ctx.font = 'italic 500 30px "Cormorant Garamond", Georgia, serif';
+      ctx.letterSpacing = '2px';
+      ctx.fillText('[ Grade / Promoted Rank ]', cx, y);
+    }
     y += 56;
 
     // Reason Intro
@@ -570,10 +578,16 @@ document.addEventListener('DOMContentLoaded', () => {
     y += 38;
 
     // REASON (Wrapped multi-line elegant quote)
-    ctx.fillStyle = '#261708';
-    ctx.font = 'italic 600 22px "Cormorant Garamond", Georgia, serif';
-    const reasonText = `« ${state.reason || 'valeur exemplaire et services distingués'} »`;
-    wrapText(ctx, reasonText, cx, y, 920, 30);
+    if (state.reason && state.reason.trim()) {
+      ctx.fillStyle = '#261708';
+      ctx.font = 'italic 600 22px "Cormorant Garamond", Georgia, serif';
+      const reasonText = `« ${state.reason.trim()} »`;
+      wrapText(ctx, reasonText, cx, y, 920, 30);
+    } else {
+      ctx.fillStyle = '#9b8260';
+      ctx.font = 'italic 500 21px "Cormorant Garamond", Georgia, serif';
+      wrapText(ctx, '« [ Entrez le motif de la promotion / State reason for promotion ] »', cx, y, 920, 30);
+    }
 
     ctx.restore();
   }
@@ -586,10 +600,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillStyle = '#5c4327';
     ctx.font = 'italic 500 18px "Cormorant Garamond", Georgia, serif';
     ctx.textAlign = 'left';
-    ctx.fillText(state.citationDate, 120, bottomY - 35);
+    const dateText = state.citationDate && state.citationDate.trim() 
+      ? state.citationDate.trim() 
+      : 'Fait sous les armes au Quartier Général';
+    ctx.fillText(dateText, 120, bottomY - 35);
     ctx.restore();
 
-    // 2. Imperial Wax Seal (Bottom Left)
+    // 2. Imperial Wax Seal (Bottom Left) stamped with VA monogram!
     drawWaxSeal(190, bottomY + 45, state.sealColor);
 
     // 3. Promoter Authority & Drawn Signature (Bottom Right)
@@ -620,10 +637,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.setLineDash([]);
 
     // Promoter Rank and Name
-    ctx.fillStyle = '#1c1005';
-    ctx.font = '700 21px "Cinzel", serif';
+    const promoterRank = state.promoterRank && state.promoterRank.trim() ? state.promoterRank.trim() : '';
+    const promoterName = state.promoterName && state.promoterName.trim() ? state.promoterName.trim() : '';
+    const fullPromoter = (promoterRank || promoterName) ? `${promoterRank} ${promoterName}`.trim() : '[ Rang & Nom du Promoteur ]';
+
+    ctx.fillStyle = (promoterRank || promoterName) ? '#1c1005' : '#9b8260';
+    ctx.font = (promoterRank || promoterName) ? '700 21px "Cinzel", serif' : 'italic 500 20px "Cormorant Garamond", serif';
     ctx.letterSpacing = '1px';
-    const fullPromoter = `${state.promoterRank} ${state.promoterName}`;
     ctx.fillText(fullPromoter, sigX + 140, sigY + 64);
 
     ctx.fillStyle = '#7a5a2d';
@@ -693,11 +713,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.arc(0, 0, 36, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Stamped Imperial Monogram "N" or "VG"
+    // Stamped Imperial Monogram "VA" (Varangian)
     ctx.font = '700 28px "Cinzel", serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('VG', 0, 2);
+    ctx.fillText('VA', 0, 2);
 
     ctx.restore();
   }
@@ -732,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function downloadPaper(format = 'image/png', ext = 'png') {
     const link = document.createElement('a');
     const safeSoldier = (state.promotedName || 'promotion').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    link.download = `imperial_promotion_${safeSoldier}.${ext}`;
+    link.download = `va_imperial_promotion_${safeSoldier}.${ext}`;
     link.href = paperCanvas.toDataURL(format, 0.96);
     link.click();
     showToast(`Decree saved as ${link.download}`);
