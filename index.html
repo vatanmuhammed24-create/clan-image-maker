@@ -63,13 +63,13 @@
     </div>
   </div>
 
-  <!-- VIEW 2: Authenticated Dashboard (Delivered Strictly After Server Verification) -->
+  <!-- VIEW 2: Authenticated Dashboard -->
   <div id="dashboardScreen" class="dashboard-layout">
     <!-- Top Navbar -->
     <header class="dash-navbar">
       <div class="dash-brand">
         <div class="dash-badge-icon">
-          <span>VG</span>
+          <span>VA</span>
         </div>
         <div>
           <h2 class="dash-title">VARANGIAN <span>COMMAND</span></h2>
@@ -99,7 +99,7 @@
         <div class="panel-header">
           <span class="panel-tag">DECREE GENERATOR</span>
           <h3 class="panel-title">Imperial Promotion Paper</h3>
-          <p class="panel-desc">Issue Napoleonic promotion citations with authentic calligraphy, seal, and promoter signature.</p>
+          <p class="panel-desc">Fill in the fields below to generate the official Napoleonic citation and draw your signature.</p>
         </div>
 
         <div class="editor-scroll">
@@ -108,13 +108,13 @@
             <div class="section-label">1. Recipient Details</div>
             
             <div class="form-group">
-              <label for="promotedName">Promoted Soldier Name</label>
-              <input type="text" id="promotedName" class="form-input" value="Alexandre de Beaumont" placeholder="e.g. Alexandre de Beaumont">
+              <label for="promotedName">Promoted Name</label>
+              <input type="text" id="promotedName" class="form-input" placeholder="Enter soldier or member name...">
             </div>
 
             <div class="form-group">
               <label for="promotedRank">Promoted Rank</label>
-              <input type="text" id="promotedRank" class="form-input" value="Capitaine des Grenadiers" placeholder="e.g. Captain, Colonel, Marshal">
+              <input type="text" id="promotedRank" class="form-input" placeholder="e.g. Capitaine, Colonel, Maréchal...">
               <div class="quick-ranks">
                 <button type="button" class="rank-pill" data-rank="Sous-Lieutenant">Sous-Lieutenant</button>
                 <button type="button" class="rank-pill" data-rank="Capitaine">Capitaine</button>
@@ -131,12 +131,12 @@
             
             <div class="form-group">
               <label for="promotionReason">Reason for Promotion</label>
-              <textarea id="promotionReason" class="form-textarea" rows="3" placeholder="State reason for promotion...">unflinching bravery, exemplary tactical leadership, and steadfast devotion to the Regiment during the decisive breakthrough at the frontline</textarea>
+              <textarea id="promotionReason" class="form-textarea" rows="3" placeholder="Enter citation reason..."></textarea>
             </div>
 
             <div class="form-group">
               <label for="citationDate">Decree Date</label>
-              <input type="text" id="citationDate" class="form-input" value="Given this 28th day of September, 1805">
+              <input type="text" id="citationDate" class="form-input" placeholder="e.g. Given this 28th day of September, 1805">
             </div>
           </div>
 
@@ -147,11 +147,11 @@
             <div class="form-row">
               <div class="form-group flex-1">
                 <label for="promoterRank">Promoter Rank</label>
-                <input type="text" id="promoterRank" class="form-input" value="Grand Maréchal" placeholder="e.g. Grand Marshal">
+                <input type="text" id="promoterRank" class="form-input" placeholder="e.g. Grand Maréchal, General...">
               </div>
               <div class="form-group flex-1">
                 <label for="promoterName">Promoter Name</label>
-                <input type="text" id="promoterName" class="form-input" value="Varangian" placeholder="e.g. Varangian">
+                <input type="text" id="promoterName" class="form-input" placeholder="e.g. Varangian...">
               </div>
             </div>
 
@@ -188,8 +188,8 @@
               <div class="form-group flex-1">
                 <label for="sealColor">Wax Seal</label>
                 <select id="sealColor" class="form-select">
-                  <option value="red">Imperial Crimson Wax</option>
-                  <option value="gold">Royal Gold Wax</option>
+                  <option value="red">Imperial Crimson Wax (VA)</option>
+                  <option value="gold">Royal Gold Wax (VA)</option>
                 </select>
               </div>
             </div>
