@@ -8,6 +8,8 @@
   --yellow-main: #facc15;
   --yellow-glow: rgba(250, 204, 21, 0.25);
   --yellow-hover: #eab308;
+  --crimson-main: #ef4444;
+  --crimson-glow: rgba(239, 68, 68, 0.25);
   --text-white: #ffffff;
   --text-muted: #94a3b8;
   --danger: #ef4444;
@@ -341,8 +343,58 @@ body {
   flex-shrink: 0;
 }
 
+/* Decree Tabs (Promotion vs Demotion) */
+.decree-tabs-wrapper {
+  padding: 0.85rem 1.25rem 0;
+  background: rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.decree-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.decree-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.decree-tab:hover {
+  color: var(--text-white);
+  background: #1c1f28;
+}
+
+.decree-tab.active {
+  color: var(--yellow-main);
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  border-top: 2px solid var(--yellow-main);
+}
+
+.decree-tab.demotion-active {
+  color: var(--crimson-main);
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  border-top: 2px solid var(--crimson-main);
+}
+
 .panel-header {
-  padding: 1.25rem 1.25rem 1rem;
+  padding: 1.1rem 1.25rem 0.85rem;
   border-bottom: 1px solid var(--border-color);
   background: rgba(0, 0, 0, 0.2);
 }
@@ -352,6 +404,11 @@ body {
   color: var(--yellow-main);
   font-weight: 700;
   letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+
+.panel-tag.demotion {
+  color: var(--crimson-main);
 }
 
 .panel-title {
@@ -391,6 +448,11 @@ body {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  transition: color 0.2s;
+}
+
+.section-label.demotion {
+  color: var(--crimson-main);
 }
 
 .form-group {
@@ -441,6 +503,11 @@ label {
   box-shadow: 0 0 0 2px var(--yellow-glow);
 }
 
+.form-input.focus-demotion:focus, .form-textarea.focus-demotion:focus {
+  border-color: var(--crimson-main);
+  box-shadow: 0 0 0 2px var(--crimson-glow);
+}
+
 /* Quick Rank Pills */
 .quick-ranks {
   display: flex;
@@ -463,6 +530,11 @@ label {
 .rank-pill:hover {
   border-color: var(--yellow-main);
   color: var(--yellow-main);
+}
+
+.rank-pill.pill-demotion:hover {
+  border-color: var(--crimson-main);
+  color: var(--crimson-main);
 }
 
 /* Signature Pad Box */
