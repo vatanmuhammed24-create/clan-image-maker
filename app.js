@@ -1,5 +1,6 @@
 /**
  * Clan Headquarters - Napoleonic Decree Studio Engine (Promotion & Demotion)
+ * With Real-Time Authoritative Server Date Synchronization
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -36,17 +37,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const previousRankGroup = document.getElementById('previousRankGroup');
   const quickRanksContainer = document.getElementById('quickRanks');
   const canvasTypeLabel = document.getElementById('canvasTypeLabel');
+  const serverDateText = document.getElementById('serverDateText');
 
   // Input Fields
   const targetNameInput = document.getElementById('targetName');
   const previousRankInput = document.getElementById('previousRank');
   const targetRankInput = document.getElementById('targetRank');
   const decreeReasonInput = document.getElementById('decreeReason');
-  const citationDateInput = document.getElementById('citationDate');
   const officerRankInput = document.getElementById('officerRank');
   const officerNameInput = document.getElementById('officerName');
   const crestSelect = document.getElementById('crestSelect');
   const sealColorSelect = document.getElementById('sealColor');
+
+  // Authoritative Server Date Cache
+  let serverDate = {
+    promotionDate: 'Given under arms at Imperial Headquarters',
+    demotionDate: 'Pronounced under disciplinary decree at Headquarters',
+    displayDate: 'Synchronizing...'
+  };
 
   // State Management: Separate for Promotion and Demotion
   let currentMode = 'promotion'; // 'promotion' | 'demotion'
@@ -60,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
       previousRank: '',
       targetRank: '',
       reason: '',
-      citationDate: '',
       officerRank: '',
       officerName: '',
       crest: 'eagle',
@@ -72,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
       previousRank: '',
       targetRank: '',
       reason: '',
-      citationDate: '',
       officerRank: '',
       officerName: '',
       crest: 'eagle',
@@ -81,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // --- 1. AUTHENTICATION & SESSION HANDLING ---
+  // --- 1. AUTHENTICATION & SERVER-SYNC HANDLING ---
   checkSession();
 
   async function checkSession() {
@@ -95,11 +101,33 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         const data = await res.json();
         if (data.authorized) {
+          if (data.serverDate) {
+            setServerDate(data.serverDate);
+          }
           showDashboard();
         }
       }
     } catch {
       // Unauthenticated, stay on login gate
+    }
+  }
+
+  // Fetch real-time server date independently if needed
+  async function syncServerTime() {
+    try {
+      const res = await fetch('/api/time');
+      if (res.ok) {
+        const data = await res.json();
+        setServerDate(data);
+        renderPaper();
+      }
+    } catch {}
+  }
+
+  function setServerDate(dateObj) {
+    serverDate = dateObj;
+    if (serverDateText) {
+      serverDateText.textContent = dateObj.displayDate || dateObj.shortDate || 'Server Synchronized';
     }
   }
 
@@ -131,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const result = await res.json();
       if (res.ok && result.success) {
+        await syncServerTime();
         showDashboard();
       } else {
         showError(result.error || 'Access denied.');
@@ -158,6 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginScreen.classList.remove('active');
     dashboardScreen.classList.add('active');
     initSignaturePad();
+    syncServerTime();
     switchMode('promotion');
   }
 
@@ -230,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
     previousRankInput.value = currentData.previousRank;
     targetRankInput.value = currentData.targetRank;
     decreeReasonInput.value = currentData.reason;
-    citationDateInput.value = currentData.citationDate;
     officerRankInput.value = currentData.officerRank;
     officerNameInput.value = currentData.officerName;
     crestSelect.value = currentData.crest;
@@ -267,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
   syncInput(previousRankInput, 'previousRank');
   syncInput(targetRankInput, 'targetRank');
   syncInput(decreeReasonInput, 'reason');
-  syncInput(citationDateInput, 'citationDate');
   syncInput(officerRankInput, 'officerRank');
   syncInput(officerNameInput, 'officerName');
 
@@ -406,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // D. Main Decree Text (Promotion vs Demotion)
     drawDecreeBody(w, h, isPromo, data);
 
-    // E. 3D Wax Seal (with VA monogram) & Signature Block
+    // E. 3D Wax Seal & Signature Block (With Authoritative Server Date)
     drawWaxSealAndSignature(w, h, isPromo, data);
   }
 
@@ -418,7 +446,6 @@ document.addEventListener('DOMContentLoaded', () => {
       bg.addColorStop(0.85, '#e4d0a7');
       bg.addColorStop(1, '#c9b183');
     } else {
-      // Slightly more somber, aged tone for Disciplinary Demotion
       bg.addColorStop(0, '#f5ede0');
       bg.addColorStop(0.55, '#ecdcc4');
       bg.addColorStop(0.85, '#dbc29a');
@@ -450,8 +477,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function drawNapoleonicBorders(w, h, isPromo) {
-    ctx.save();
     const margin = 45;
+    ctx.save();
 
     // 1. Outer Dark Sepia Border
     ctx.strokeStyle = isPromo ? '#2b1b0c' : '#261208';
@@ -470,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.lineWidth = 2;
     ctx.strokeRect(inMargin, inMargin, w - inMargin * 2, h - inMargin * 2);
 
-    // French Corner Brackets
+    // Corner Brackets
     drawCornerFlourish(inMargin, inMargin, 1, 1, isPromo);
     drawCornerFlourish(w - inMargin, inMargin, -1, 1, isPromo);
     drawCornerFlourish(inMargin, h - inMargin, 1, -1, isPromo);
@@ -510,10 +537,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cx = w / 2;
     const topY = 125;
 
-    // Draw Selected Crest
     drawCrest(cx, topY, crestType);
 
-    // Subtitle
     ctx.textAlign = 'center';
     ctx.fillStyle = isPromo ? '#6b4f2c' : '#5e381b';
     ctx.font = '700 13px "Cinzel", serif';
@@ -523,14 +548,12 @@ document.addEventListener('DOMContentLoaded', () => {
       : 'VARANGIAN IMPERIAL COMMAND • HIGH MILITARY TRIBUNAL';
     ctx.fillText(subText, cx, topY + 54);
 
-    // Main Title
     ctx.fillStyle = isPromo ? '#1c1208' : '#240d07';
     ctx.font = '900 44px "Cinzel Decorative", "Cinzel", serif';
     ctx.letterSpacing = '6px';
     const mainTitle = isPromo ? 'COMMISSION OF PROMOTION' : 'DECREE OF DEMOTION';
     ctx.fillText(mainTitle, cx, topY + 105);
 
-    // Divider Flourish
     drawVintageFlourishDivider(cx, topY + 125, 280, isPromo);
 
     ctx.restore();
@@ -696,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // TARGET RANK
     if (data.targetRank && data.targetRank.trim()) {
-      ctx.fillStyle = isPromo ? '#801818' : '#6b1111'; // Burgundy for Promotion / Deep Crimson for Demotion
+      ctx.fillStyle = isPromo ? '#801818' : '#6b1111';
       ctx.font = '900 36px "Cinzel", serif';
       ctx.letterSpacing = '4px';
       ctx.fillText(data.targetRank.trim().toUpperCase(), cx, y);
@@ -733,15 +756,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function drawWaxSealAndSignature(w, h, isPromo, data) {
     const bottomY = h - 170;
 
-    // 1. Date of Decree (Left-Center above seal)
+    // 1. Authoritative Server Date (Left-Center above seal)
     ctx.save();
     ctx.fillStyle = '#5c4327';
     ctx.font = 'italic 500 18px "Cormorant Garamond", Georgia, serif';
     ctx.textAlign = 'left';
-    const dateText = data.citationDate && data.citationDate.trim() 
-      ? data.citationDate.trim() 
-      : (isPromo ? 'Given under arms at Imperial Headquarters' : 'Given under disciplinary decree at Headquarters');
-    ctx.fillText(dateText, 120, bottomY - 35);
+
+    // Auto-selected from verified server date
+    const autoServerDate = isPromo ? serverDate.promotionDate : serverDate.demotionDate;
+    ctx.fillText(autoServerDate, 120, bottomY - 35);
     ctx.restore();
 
     // 2. 3D Wax Seal stamped with VA monogram
