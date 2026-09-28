@@ -1,5 +1,5 @@
 /**
- * Clan Headquarters - Napoleonic Promotion Studio Engine
+ * Clan Headquarters - Napoleonic Promotion Studio Engine (English Edition)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sigCanvas = document.getElementById('sigCanvas');
   const sigCtx = sigCanvas.getContext('2d');
 
-  // Promotion Form State - Starts empty for the promoter to fill in
+  // Promotion Form State - 100% English, Starts empty for the promoter to fill in
   const state = {
     promotedName: '',
     promotedRank: '',
@@ -174,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
     sigCtx.lineCap = 'round';
     sigCtx.lineJoin = 'round';
     sigCtx.strokeStyle = '#1a1005'; // Dark sepia ink
-    // Starts blank - promoter draws their own signature
   }
 
   function getSigCoords(e) {
@@ -272,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPaper();
   }
 
-  // --- 4. NAPOLEONIC PAPER RENDERING ENGINE ---
+  // --- 4. NAPOLEONIC PAPER RENDERING ENGINE (100% ENGLISH) ---
   function renderPaper() {
     const w = paperCanvas.width;
     const h = paperCanvas.height;
@@ -390,18 +389,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Draw Selected Imperial Crest
     drawCrest(cx, topY, state.crest);
 
-    // Imperial Subtitle
+    // Imperial Subtitle in English
     ctx.textAlign = 'center';
     ctx.fillStyle = '#6b4f2c';
     ctx.font = '700 13px "Cinzel", serif';
     ctx.letterSpacing = '5px';
-    ctx.fillText('EMPIRE DE L\'HONNEUR • CONSEIL DE GUERRE', cx, topY + 54);
+    ctx.fillText('VARANGIAN IMPERIAL COMMAND • HIGH WAR COUNCIL', cx, topY + 54);
 
-    // Grand Title: BREVET DE PROMOTION
+    // Grand Title: COMMISSION OF PROMOTION
     ctx.fillStyle = '#1c1208';
     ctx.font = '900 44px "Cinzel Decorative", "Cinzel", serif';
     ctx.letterSpacing = '6px';
-    ctx.fillText('BREVET DE PROMOTION', cx, topY + 105);
+    ctx.fillText('COMMISSION OF PROMOTION', cx, topY + 105);
 
     // Ornate Divider Flourish
     drawVintageFlourishDivider(cx, topY + 125, 260);
@@ -510,6 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.lineTo(cx + width / 2, cy);
     ctx.stroke();
 
+    // Center Diamond
     ctx.beginPath();
     ctx.moveTo(cx, cy - 6);
     ctx.lineTo(cx + 6, cy);
@@ -525,13 +525,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const cx = w / 2;
     let y = 305;
 
-    // Proclamation line
+    // Proclamation intro in English
     ctx.textAlign = 'center';
     ctx.fillStyle = '#4a3620';
     ctx.font = 'italic 500 21px "Cormorant Garamond", Georgia, serif';
-    ctx.fillText('De par le Commandement Suprême et en vertu des Pouvoirs Conférés,', cx, y);
+    ctx.fillText('By Order of the Supreme Command and by Virtue of Authority Vested,', cx, y);
     y += 28;
-    ctx.fillText('Il est solennellement reconnu et décrété que :', cx, y);
+    ctx.fillText('Be it solemnly recognized and decreed that :', cx, y);
     y += 62;
 
     // PROMOTED NAME
@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fillStyle = '#9b8260';
       ctx.font = 'italic 500 38px "Cormorant Garamond", Georgia, serif';
       ctx.letterSpacing = '2px';
-      ctx.fillText('[ Nom du Promu / Promoted Name ]', cx, y);
+      ctx.fillText('[ Promoted Name ]', cx, y);
     }
 
     // Underline flourish for Promoted Name
@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Transition text
     ctx.fillStyle = '#4a3620';
     ctx.font = 'italic 600 23px "Cormorant Garamond", Georgia, serif';
-    ctx.fillText('est élevé et promu avec tous les honneurs au grade de', cx, y);
+    ctx.fillText('has been officially elevated and promoted to the rank of', cx, y);
     y += 54;
 
     // PROMOTED RANK
@@ -567,26 +567,26 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fillStyle = '#9b8260';
       ctx.font = 'italic 500 30px "Cormorant Garamond", Georgia, serif';
       ctx.letterSpacing = '2px';
-      ctx.fillText('[ Grade / Promoted Rank ]', cx, y);
+      ctx.fillText('[ Promoted Rank ]', cx, y);
     }
     y += 56;
 
-    // Reason Intro
+    // Reason Intro in English
     ctx.fillStyle = '#4a3620';
     ctx.font = 'italic 500 21px "Cormorant Garamond", Georgia, serif';
-    ctx.fillText('en témoignage et récompense de :', cx, y);
+    ctx.fillText('because :', cx, y);
     y += 38;
 
     // REASON (Wrapped multi-line elegant quote)
     if (state.reason && state.reason.trim()) {
       ctx.fillStyle = '#261708';
       ctx.font = 'italic 600 22px "Cormorant Garamond", Georgia, serif';
-      const reasonText = `« ${state.reason.trim()} »`;
+      const reasonText = `“ ${state.reason.trim()} ”`;
       wrapText(ctx, reasonText, cx, y, 920, 30);
     } else {
       ctx.fillStyle = '#9b8260';
       ctx.font = 'italic 500 21px "Cormorant Garamond", Georgia, serif';
-      wrapText(ctx, '« [ Entrez le motif de la promotion / State reason for promotion ] »', cx, y, 920, 30);
+      wrapText(ctx, '“ [ State reason for promotion ] ”', cx, y, 920, 30);
     }
 
     ctx.restore();
@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.textAlign = 'left';
     const dateText = state.citationDate && state.citationDate.trim() 
       ? state.citationDate.trim() 
-      : 'Fait sous les armes au Quartier Général';
+      : 'Given under arms at Imperial Headquarters';
     ctx.fillText(dateText, 120, bottomY - 35);
     ctx.restore();
 
@@ -616,10 +616,10 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.save();
     ctx.textAlign = 'center';
 
-    // Authority Label
+    // Authority Label in English
     ctx.fillStyle = '#4a3620';
     ctx.font = 'italic 600 19px "Cormorant Garamond", Georgia, serif';
-    ctx.fillText('Par Ordre de l\'Autorité Mandatée :', sigX + 140, sigY - 45);
+    ctx.fillText('By Order of the Commanding Authority :', sigX + 140, sigY - 45);
 
     // Stamping the Drawn Signature from sigCanvas!
     if (state.hasSignature) {
@@ -639,7 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Promoter Rank and Name
     const promoterRank = state.promoterRank && state.promoterRank.trim() ? state.promoterRank.trim() : '';
     const promoterName = state.promoterName && state.promoterName.trim() ? state.promoterName.trim() : '';
-    const fullPromoter = (promoterRank || promoterName) ? `${promoterRank} ${promoterName}`.trim() : '[ Rang & Nom du Promoteur ]';
+    const fullPromoter = (promoterRank || promoterName) ? `${promoterRank} ${promoterName}`.trim() : '[ Promoter Rank & Name ]';
 
     ctx.fillStyle = (promoterRank || promoterName) ? '#1c1005' : '#9b8260';
     ctx.font = (promoterRank || promoterName) ? '700 21px "Cinzel", serif' : 'italic 500 20px "Cormorant Garamond", serif';
@@ -649,7 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillStyle = '#7a5a2d';
     ctx.font = '600 13px "Cinzel", serif';
     ctx.letterSpacing = '2px';
-    ctx.fillText('COMMANDANT EN CHEF • SCEAU OFFICIEL', sigX + 140, sigY + 84);
+    ctx.fillText('COMMANDING OFFICER • OFFICIAL SEAL', sigX + 140, sigY + 84);
 
     ctx.restore();
   }
