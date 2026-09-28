@@ -7,39 +7,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const togglePasswordBtn = document.getElementById('togglePasswordBtn');
   const eyeIcon = document.getElementById('eyeIcon');
   const submitBtn = document.getElementById('submitBtn');
-  const lockBtn = document.getElementById('lockBtn');
 
-  // Verify existing session on load
-  const existingToken = sessionStorage.getItem('clan_session_token');
-  if (existingToken) {
-    if (window.location.protocol.startsWith('http')) {
-      fetch('/api/verify', {
-        headers: { 'Authorization': `Bearer ${existingToken}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.valid) {
-          showGranted();
-        } else {
-          sessionStorage.removeItem('clan_session_token');
-        }
-      })
-      .catch(() => {
-        // If offline or network issue, maintain authorized view if flagged
-        if (sessionStorage.getItem('clan_session_auth') === 'true') {
-          showGranted();
-        }
+  // 1. Check Server-Side Session on Load
+  checkServerSession();
+
+  async function checkServerSession() {
+    try {
+      const res = await fetch('/api/portal', {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
       });
-    } else if (sessionStorage.getItem('clan_session_auth') === 'true') {
-      showGranted();
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authorized) {
+          renderAccessGrantedView(data);
+        }
+      }
+    } catch {
+      // Unauthenticated or network error, stay on login gate
     }
   }
 
-  // Toggle Password Visibility
+  // 2. Toggle Password Visibility (Client UI only)
   togglePasswordBtn.addEventListener('click', () => {
     const isPassword = passwordInput.getAttribute('type') === 'password';
     passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-    
+
     if (isPassword) {
       eyeIcon.innerHTML = `
         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
@@ -53,13 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Handle Login Form Submission
+  // 3. Handle Form Submission to Server
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const enteredPassword = passwordInput.value;
 
     if (!enteredPassword) {
-      showError('Please enter the password.');
+      showError('Please enter password.');
       return;
     }
 
@@ -67,48 +62,93 @@ document.addEventListener('DOMContentLoaded', () => {
     errorMessage.textContent = '';
 
     try {
-      // Production path (on Vercel): Secure Serverless API
-      if (window.location.protocol.startsWith('http')) {
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ password: enteredPassword })
-        });
+      // POST to Vercel Serverless Authentication
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ password: enteredPassword })
+      });
 
-        const result = await response.json();
+      const result = await response.json();
 
-        if (response.ok && result.success) {
-          sessionStorage.setItem('clan_session_token', result.token);
-          sessionStorage.setItem('clan_session_auth', 'true');
-          showGranted();
-        } else {
-          showError(result.error || 'Access denied. Incorrect password.');
-        }
+      if (response.ok && result.success) {
+        // Fetch protected server payload
+        await checkServerSession();
       } else {
-        // Local file protocol fallback (e.g. testing double-clicked index.html)
-        // Uses SubtleCrypto SHA-256 hash comparison - password still NEVER stored in plaintext!
-        const TARGET_HASH = 'f1fe824010238a2d55463040d76df6c427ffc2bc01bac04683b1d1be70849073';
-        const msgUint8 = new TextEncoder().encode(enteredPassword.trim());
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-        if (hashHex === TARGET_HASH) {
-          sessionStorage.setItem('clan_session_auth', 'true');
-          showGranted();
-        } else {
-          showError('Access denied. Incorrect password.');
-        }
+        showError(result.error || 'Access denied.');
       }
-    } catch (err) {
-      console.error(err);
-      showError('Authentication service unreachable. Please try again.');
+    } catch {
+      showError('Server unreachable. Please verify connection.');
     } finally {
       setLoading(false);
     }
   });
+
+  // 4. Render Server-Delivered Protected View
+  function renderAccessGrantedView(data) {
+    loginScreen.classList.remove('active');
+    grantedScreen.classList.add('active');
+
+    // Build the Access Granted DOM strictly from verified server data
+    grantedScreen.innerHTML = `
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span>SESSION ACTIVE</span>
+      </div>
+
+      <div class="granted-icon">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+
+      <h1 class="granted-title">${escapeHtml(data.title || 'ACCESS GRANTED')}</h1>
+      <p class="granted-subtitle">${escapeHtml(data.welcomeMessage || 'Welcome back, Commander.')}</p>
+
+      <div class="granted-content-box">
+        <div class="info-row">
+          <span class="info-label">Security Clearance</span>
+          <span class="info-val yellow-text">${escapeHtml(data.securityClearance || 'LEVEL 1')}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-val">${escapeHtml(data.portalStatus || 'Active')}</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="lockBtn" class="btn-secondary">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Lock Portal
+        </button>
+      </div>
+    `;
+
+    // Bind server-side logout
+    document.getElementById('lockBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/api/logout', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+      } catch {}
+
+      grantedScreen.innerHTML = '';
+      grantedScreen.classList.remove('active');
+      loginScreen.classList.add('active');
+      passwordInput.value = '';
+      errorMessage.textContent = '';
+      passwordInput.focus();
+    });
+  }
 
   function setLoading(loading) {
     if (loading) {
@@ -123,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showError(msg) {
-    // Pure textContent - zero XSS vulnerability
     errorMessage.textContent = msg;
     loginScreen.classList.remove('shake');
     void loginScreen.offsetWidth;
@@ -132,18 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
     passwordInput.select();
   }
 
-  function showGranted() {
-    loginScreen.classList.remove('active');
-    grantedScreen.classList.add('active');
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
-
-  lockBtn.addEventListener('click', () => {
-    sessionStorage.removeItem('clan_session_token');
-    sessionStorage.removeItem('clan_session_auth');
-    passwordInput.value = '';
-    errorMessage.textContent = '';
-    grantedScreen.classList.remove('active');
-    loginScreen.classList.add('active');
-    passwordInput.focus();
-  });
 });
