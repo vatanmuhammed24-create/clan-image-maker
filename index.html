@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="styles.css?v=3.0.1">
+  <link rel="stylesheet" href="styles.css?v=3.1.0">
 </head>
 <body>
   <!-- Ambient background dot pattern -->
@@ -76,7 +76,7 @@
         </div>
         <div>
           <h2 class="dash-title">VARANGIAN <span>COMMAND</span></h2>
-          <p class="dash-subtitle">Imperial Promotion Office</p>
+          <p class="dash-subtitle">Imperial Adjutant Office</p>
         </div>
       </div>
 
@@ -97,44 +97,65 @@
 
     <!-- Main Workspace -->
     <main class="dash-body">
-      <!-- Left Controls: Promotion Paper Form -->
+      <!-- Left Controls: Decree Editor -->
       <aside class="sidebar-editor">
+        <!-- Decree Type Selector (Promotion vs Demotion) -->
+        <div class="decree-tabs-wrapper">
+          <div class="decree-tabs">
+            <button type="button" id="tabPromotion" class="decree-tab active">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+              </svg>
+              Promotion
+            </button>
+            <button type="button" id="tabDemotion" class="decree-tab">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              Demotion
+            </button>
+          </div>
+        </div>
+
         <div class="panel-header">
-          <span class="panel-tag">DECREE GENERATOR</span>
-          <h3 class="panel-title">Imperial Promotion Paper</h3>
-          <p class="panel-desc">Fill in the fields below to generate the official Napoleonic citation and draw your signature.</p>
+          <span id="panelTag" class="panel-tag">COMMISSION GENERATOR</span>
+          <h3 id="panelTitle" class="panel-title">Imperial Promotion Paper</h3>
+          <p id="panelDesc" class="panel-desc">Fill in the fields below to generate the official Napoleonic citation and draw your signature.</p>
         </div>
 
         <div class="editor-scroll">
-          <!-- Promoted Soldier Section -->
+          <!-- Recipient Section -->
           <div class="form-section">
             <div class="section-label">1. Recipient Details</div>
             
             <div class="form-group">
-              <label for="promotedName">Promoted Name</label>
-              <input type="text" id="promotedName" class="form-input" placeholder="Enter soldier or member name...">
+              <label id="lblTargetName" for="targetName">Promoted Name</label>
+              <input type="text" id="targetName" class="form-input" placeholder="Enter soldier or member name...">
+            </div>
+
+            <!-- Optional Previous Rank (Especially helpful for Demotion) -->
+            <div class="form-group" id="previousRankGroup" style="display: none;">
+              <label for="previousRank">Previous / Former Rank</label>
+              <input type="text" id="previousRank" class="form-input" placeholder="e.g. Captain, Major, Colonel...">
             </div>
 
             <div class="form-group">
-              <label for="promotedRank">Promoted Rank</label>
-              <input type="text" id="promotedRank" class="form-input" placeholder="e.g. Lieutenant, Captain, Major, Colonel...">
-              <div class="quick-ranks">
-                <button type="button" class="rank-pill" data-rank="Lieutenant">Lieutenant</button>
-                <button type="button" class="rank-pill" data-rank="Captain">Captain</button>
-                <button type="button" class="rank-pill" data-rank="Major">Major</button>
-                <button type="button" class="rank-pill" data-rank="Colonel">Colonel</button>
-                <button type="button" class="rank-pill" data-rank="Field Marshal">Field Marshal</button>
+              <label id="lblTargetRank" for="targetRank">Promoted Rank</label>
+              <input type="text" id="targetRank" class="form-input" placeholder="e.g. Lieutenant, Captain, Major, Colonel...">
+              <div id="quickRanks" class="quick-ranks">
+                <!-- Dynamically populated rank pills -->
               </div>
             </div>
           </div>
 
-          <!-- Citation / Reason Section -->
+          <!-- Reason & Date Section -->
           <div class="form-section">
-            <div class="section-label">2. Citation & Valor</div>
+            <div class="section-label">2. Citation & Grounds</div>
             
             <div class="form-group">
-              <label for="promotionReason">Reason for Promotion</label>
-              <textarea id="promotionReason" class="form-textarea" rows="3" placeholder="State why they are being promoted..."></textarea>
+              <label id="lblReason" for="decreeReason">Reason for Promotion</label>
+              <textarea id="decreeReason" class="form-textarea" rows="3" placeholder="State reason..."></textarea>
             </div>
 
             <div class="form-group">
@@ -143,25 +164,25 @@
             </div>
           </div>
 
-          <!-- Promoter / Authority Section -->
+          <!-- Authority & Signature Section -->
           <div class="form-section">
             <div class="section-label">3. Issuing Authority</div>
             
             <div class="form-row">
               <div class="form-group flex-1">
-                <label for="promoterRank">Promoter Rank</label>
-                <input type="text" id="promoterRank" class="form-input" placeholder="e.g. Grand Marshal, Commander...">
+                <label id="lblOfficerRank" for="officerRank">Promoter Rank</label>
+                <input type="text" id="officerRank" class="form-input" placeholder="e.g. Grand Marshal, Commander...">
               </div>
               <div class="form-group flex-1">
-                <label for="promoterName">Promoter Name</label>
-                <input type="text" id="promoterName" class="form-input" placeholder="e.g. Varangian...">
+                <label id="lblOfficerName" for="officerName">Promoter Name</label>
+                <input type="text" id="officerName" class="form-input" placeholder="e.g. Varangian...">
               </div>
             </div>
 
             <!-- Interactive Signature Pad -->
             <div class="form-group">
               <div class="sig-header">
-                <label>Draw Promoter Signature</label>
+                <label id="lblSigTitle">Draw Promoter Signature</label>
                 <div class="sig-tools">
                   <button type="button" id="clearSigBtn" class="btn-mini">Clear</button>
                   <button type="button" id="sampleSigBtn" class="btn-mini">Sample</button>
@@ -193,6 +214,7 @@
                 <select id="sealColor" class="form-select">
                   <option value="red">Imperial Crimson Wax (VA)</option>
                   <option value="gold">Royal Gold Wax (VA)</option>
+                  <option value="black">Disciplinary Black Wax (VA)</option>
                 </select>
               </div>
             </div>
@@ -206,7 +228,7 @@
         <div class="stage-toolbar">
           <div class="toolbar-title">
             <span class="doc-badge">1400 × 980 PX</span>
-            <span>ANTIQUE PARCHMENT DECREE</span>
+            <span id="canvasTypeLabel">ANTIQUE PARCHMENT PROMOTION DECREE</span>
           </div>
 
           <div class="toolbar-actions">
@@ -241,8 +263,8 @@
     </main>
   </div>
 
-  <div id="toast" class="toast">Promotion decree copied!</div>
+  <div id="toast" class="toast">Decree copied to clipboard!</div>
 
-  <script src="app.js?v=3.0.1"></script>
+  <script src="app.js?v=3.1.0"></script>
 </body>
 </html>
