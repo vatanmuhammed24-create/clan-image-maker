@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord Ping Tracker - Command Dashboard</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="brand-avatar">
+          <img id="botAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Bot">
+          <span id="botStatusDot" class="status-indicator online"></span>
+        </div>
+        <div>
+          <div class="brand-title">
+            <span id="botName">KRIP BOT</span>
+            <span class="bot-badge">DISCORD BOT</span>
+          </div>
+          <p class="brand-sub">Channel Ping Intelligence & Analytics</p>
+        </div>
+      </div>
+
+      <div class="server-context">
+        <div class="context-item">
+          <span class="context-label">SERVER</span>
+          <span id="serverName" class="context-value">Connecting...</span>
+        </div>
+        <div class="context-divider">/</div>
+        <div class="context-item">
+          <span class="context-label">CHANNEL</span>
+          <span id="channelName" class="context-value">#1358489934624719093</span>
+        </div>
+      </div>
+
+      <div class="navbar-actions">
+        <button id="scanBtn" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <span>Scan Channel History</span>
+        </button>
+        <button id="exportBtn" class="btn btn-secondary" title="Export member ping list to CSV">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export CSV
+        </button>
+      </div>
+    </header>
+
+    <!-- Missing Bot Invitation Banner (Shown if bot is not in guild) -->
+    <div id="inviteBanner" class="alert-banner" style="display: none;">
+      <div class="banner-content">
+        <div class="banner-icon">⚠️</div>
+        <div>
+          <strong>Bot Needs to be Invited to Your Server:</strong>
+          <span>The bot is online but hasn't been added to your Discord server yet. Click below to invite it with 1 click.</span>
+        </div>
+      </div>
+      <a id="inviteLinkBtn" href="#" target="_blank" class="btn btn-invite">
+        Add Bot to Discord Server
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Active Scanning Progress Banner -->
+    <div id="scanProgressBar" class="scan-banner" style="display: none;">
+      <div class="spinner"></div>
+      <div class="scan-info">
+        <strong id="scanProgressText">Scanning channel message history...</strong>
+        <span class="scan-sub">Fetching messages and tallying user mentions in real-time</span>
+      </div>
+    </div>
+
+    <!-- KPI Metric Cards -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">TOTAL SERVER MEMBERS</span>
+          <span class="metric-icon">👥</span>
+        </div>
+        <div id="statTotalMembers" class="metric-value">0</div>
+        <div class="metric-desc">Registered server members</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">MESSAGES SCANNED</span>
+          <span class="metric-icon">💬</span>
+        </div>
+        <div id="statTotalMessages" class="metric-value">0</div>
+        <div class="metric-desc">Channel history processed</div>
+      </div>
+
+      <div class="metric-card highlight-card">
+        <div class="metric-header">
+          <span class="metric-title">TOTAL PINGS COUNTED</span>
+          <span class="metric-icon">🔔</span>
+        </div>
+        <div id="statTotalPings" class="metric-value yellow-text">0</div>
+        <div class="metric-desc">All user mentions detected</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">UNIQUE MEMBERS PINGED</span>
+          <span class="metric-icon">🎯</span>
+        </div>
+        <div id="statUniquePinged" class="metric-value">0</div>
+        <div class="metric-desc">Members mentioned at least once</div>
+      </div>
+    </section>
+
+    <!-- Controls & Filters Toolbar -->
+    <div class="table-controls">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search members by username, nickname, or ID...">
+        <button id="clearSearchBtn" class="clear-btn" style="display: none;">×</button>
+      </div>
+
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All Members</button>
+        <button class="filter-tab" data-filter="pinged">Pinged Only</button>
+        <button class="filter-tab" data-filter="top10">Top 10</button>
+        <button class="filter-tab" data-filter="zero">Zero Pings</button>
+      </div>
+
+      <div class="sort-selector">
+        <label for="sortSelect">SORT BY:</label>
+        <select id="sortSelect">
+          <option value="pings">Most Pinged</option>
+          <option value="least">Least Pinged</option>
+          <option value="name">Alphabetical</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Members Leaderboard Table -->
+    <section class="table-container">
+      <table class="members-table">
+        <thead>
+          <tr>
+            <th width="70">RANK</th>
+            <th>MEMBER</th>
+            <th>USER ID</th>
+            <th width="140" class="text-right">TOTAL PINGS</th>
+            <th width="200">PING RATIO</th>
+            <th>LAST PINGED</th>
+            <th width="100" class="text-center">DETAILS</th>
+          </tr>
+        </thead>
+        <tbody id="membersTableBody">
+          <tr>
+            <td colspan="7" class="loading-state">
+              <div class="spinner"></div>
+              <span>Connecting to Discord and loading member data...</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- Member Ping History Detail Modal -->
+  <div id="detailModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-user-info">
+          <img id="modalAvatar" src="" alt="Avatar">
+          <div>
+            <h3 id="modalName">User Name</h3>
+            <span id="modalId" class="modal-id">ID: 00000000</span>
+          </div>
+        </div>
+        <button id="closeModalBtn" class="close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-summary">
+          <div class="summary-pill">
+            <span class="pill-label">Total Pings</span>
+            <span id="modalPingCount" class="pill-value">0</span>
+          </div>
+        </div>
+
+        <h4 class="history-title">Message Ping Instances</h4>
+        <div id="modalPingList" class="ping-history-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Action completed!</div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
